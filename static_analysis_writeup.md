@@ -156,6 +156,26 @@ The instruction `cmp ecx, edx` followed by `jg` (Jump if Greater) compares the t
 ## 4. Lookup Table Extraction & Endianness Parsing
 To solve the challenge, the exact data stored inside the global table `word_404000` was extracted from the binary's data segment. Since the table stores 2-byte words on an x86 Little-Endian architecture, the bytes were parsed in pairs from their respective memory offsets:
 
-Index 0 (00404000): Defined as dw 7 $\rightarrow$ 7Index 1 (00404002): Bytes are 21h 00h $\rightarrow$ 0x0021 = 33Index 2 (00404004): Bytes are 01h 00h $\rightarrow$ 0x0001 = 1Index 3 (00404006): Bytes are A8h FDh $\rightarrow$ 0xFDA8 = -600 (Signed 16-bit integer)Index 4 (00404008): Bytes are 78h ECh $\rightarrow$ 0xEC78 = -5000 (Signed 16-bit integer)Index 5 (0040400A): Bytes are F1h 06h $\rightarrow$ 0x06F1 = 1777Index 6 (0040400C): Bytes are 0Dh 00h $\rightarrow$ 0x000D = 13Index 7 (0040400E): Bytes are 45h 00h $\rightarrow$ 0x0045 = 69
+*Index 0 (`00404000`): Defined as `dw 7` → `7`
+*Index 1 (`00404002`): Bytes are `21h 00h` → 0x0021 = `33`
+*Index 2 (`00404004`): Bytes are `01h 00h` → 0x0001 = `1`
+*Index 3 (`00404006`): Bytes are `A8h FDh` → 0xFDA8 = `-600` (Signed 16-bit integer)
+*Index 4 (`00404008`): Bytes are `78h ECh` → 0xEC78 = `-5000` (Signed 16-bit integer)
+*Index 5 (`0040400A`): Bytes are `F1h 06h` → 0x06F1 = `1777`
+*Index 6 (`0040400C`): Bytes are `0Dh 00h` → 0x000D = `13`
+*Index 7 (`0040400E`): Bytes are `45h 00h` → 0x0045 = `69`
+
+## 5. Solution Formulation & Verification
+Sorting the table values from the lowest (most negative) to the highest value yields the mandatory ascending progression:
+
+`-5000 < -600 < 1 < 7 < 13 < 33 < 69 < 1777`
+
+Mapping these values back to their corresponding input indexes results in the correct sequence required by the 
+```
+4, 3, 2, 0, 6, 1, 7, 5
+```
+Entering these numbers sequentially (pressing Enter after each digit) successfully fulfills the sorting constraints of `sub_4014F0` and unlocks Level 4!
+
+<img width="1128" height="402" alt="צילום מסך 2026-05-21 191648" src="https://github.com/user-attachments/assets/66bf7953-6e55-4fde-afcd-259b6d7e5d4a" />
 
 
