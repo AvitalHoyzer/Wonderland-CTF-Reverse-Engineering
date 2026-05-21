@@ -4,10 +4,9 @@
 Upon passing the initial level, the execution flow triggers the following terminal challenge:
 > *"You know what? That was too easy. \*Now\* tell me the second password."*
 
-The binary halts to await user input, which is subsequently stored inside a local stack buffer designated as `Buffer`. To trace how this input is handled and mutated, static analysis was conducted on the binary using IDA Pro, leading directly to the primary cryptographic transformation loop.
+The binary halts to await user input, which is subsequently stored inside a local stack buffer designated as `Buffer`.
 
 ---
-
 ## 2. Assembly Code Analysis & Reverse Engineering
 Within the core processing block (`loc_401380`), the following assembly sequence is responsible for mutating the input string:
 
@@ -18,7 +17,8 @@ xor     ecx, 41524241h
 mov     edx, [ebp+var_4]
 mov     dword ptr [ebp+edx+Buffer], ecx
 jmp     short loc_4013A5
-Deconstruction of the Routine:
+```
+## Deconstruction of the Routine:
 Index Tracking: The local variable var_4 acts as the loop index offset (initialized to 0) and is loaded into the eax register.
 
 DWORD-Sized Chunk Processing: The instruction mov ecx, dword ptr [ebp+eax+Buffer] reads 4 bytes simultaneously (a double-word / DWORD) from the input buffer into ecx. This marks a structural escalation from Level 1, which processed input on a single-byte scale.
@@ -29,12 +29,13 @@ Memory Write-Back: The mutated 4-byte block in ecx is written back into its orig
 
 Analyzing the Loop Stride (loc_4013A5):
 Immediately following the mutation, control branches to the loop modifier block:
-
-קטע קוד
+```
 loc_4013A5:
 mov     ecx, [ebp+var_4]
 add     ecx, 4
 mov     [ebp+var_4], ecx
+```
+
 The explicit instruction add ecx, 4 confirms that the loop index increments by 4 bytes per iteration. This structural alignment completely synchronizes with the 4-byte DWORD mutations examined in the prior block.
 
 3. Cryptographic Key Extraction & Endianness Context
@@ -71,7 +72,7 @@ A⊕B=C⟹C⊕B=A
 ), running the target ciphertext "into the rabbit hole" through the exact same chunk-based XOR routine using the key "ABRA" inverts the ciphertext back into the required cleartext password.
 
 The following Python script automates this reverse transformation:
-
+```
 Python
 def doXor():
     target_str = "into the rabbit hole"
@@ -90,6 +91,7 @@ def doXor():
 
 if __name__ == "__main__":
     print(doXor())
+```
 Execution Output & Verified Password:
 Running the automated script produces the following required input string:
 
