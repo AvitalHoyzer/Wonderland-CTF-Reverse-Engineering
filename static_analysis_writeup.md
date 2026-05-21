@@ -77,13 +77,13 @@ A⊕B=C⟹C⊕B=A
 The following Python script automates this reverse transformation:
 ```
 def doXor():
-    target_str = "into the rabbit hole"
+    str = "into the rabbit hole"
     key = "ABRA"
     result = ""
     
     # Iterate through the ciphertext in strides of 4 bytes
-    for i in range(0, len(target_str), 4):
-        block = target_str[i:i+4]
+    for i in range(0, len(str), 4):
+        block = str[i:i+4]
         
         # XOR each character of the block against the parallel key character
         for j in range(len(block)):
