@@ -1,5 +1,6 @@
-# Write-Up: Wonderland – Level 2 (DWORD-level XOR)
-
+# Write-Up: Wonderland 
+Level 2 
+---
 ## 1. Introduction & Initial Analysis
 Upon passing the initial level, the execution flow triggers the following terminal challenge:
 > *"You know what? That was too easy. \*Now\* tell me the second password."*
@@ -75,7 +76,6 @@ A⊕B=C⟹C⊕B=A
 
 The following Python script automates this reverse transformation:
 ```
-Python
 def doXor():
     target_str = "into the rabbit hole"
     key = "ABRA"
@@ -100,7 +100,9 @@ Running the automated script produces the following required input string:
 ```
 (, &.a6:$a03##+&a)->$
 ```
+<img width="864" height="376" alt="צילום מסך 2026-05-21 161626" src="https://github.com/user-attachments/assets/32f9f570-02a4-4ba7-be30-116fefb0bd3d" />
 
-Submitting this passphrase successfully bypasses the second verification check and unlocks the subsequent stage:
+Submitting this passphrase successfully bypasses the second verification check!
 
-"Welcome to Wonderland. I am the mad hatter, and I have some riddles for you..."
+<img width="1162" height="260" alt="צילום מסך 2026-05-21 161610" src="https://github.com/user-attachments/assets/c2167d52-2d52-4adf-867d-cc313f1afd41" />
+
