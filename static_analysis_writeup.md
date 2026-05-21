@@ -147,23 +147,23 @@ jg      short loc_40154F
 ### The Validation Rule:
 The instruction `cmp ecx, edx` followed by `jg` (Jump if Greater) compares the table value of the current index against the table value of the previous index.
 
-*If the newly fetched value is strictly greater than the previous one, the loop updates its baseline tracker (`var_8`) and moves to the next number.
+* If the newly fetched value is strictly greater than the previous one, the loop updates its baseline tracker (`var_8`) and moves to the next number.
 
-*If any value is smaller than or equal to the previous one, the function immediately fails, clearing `eax` to 0 and rejecting the input.
+* If any value is smaller than or equal to the previous one, the function immediately fails, clearing `eax` to 0 and rejecting the input.
 
 **Conclusion**: The validation routine requires the numbers to be entered in an order that extracts values from the global lookup table in a strictly ascending order (from lowest to highest).
 
 ## 4. Lookup Table Extraction & Endianness Parsing
 To solve the challenge, the exact data stored inside the global table `word_404000` was extracted from the binary's data segment. Since the table stores 2-byte words on an x86 Little-Endian architecture, the bytes were parsed in pairs from their respective memory offsets:
 
-*Index 0 (`00404000`): Defined as `dw 7` → `7`
-*Index 1 (`00404002`): Bytes are `21h 00h` → 0x0021 = `33`
-*Index 2 (`00404004`): Bytes are `01h 00h` → 0x0001 = `1`
-*Index 3 (`00404006`): Bytes are `A8h FDh` → 0xFDA8 = `-600` (Signed 16-bit integer)
-*Index 4 (`00404008`): Bytes are `78h ECh` → 0xEC78 = `-5000` (Signed 16-bit integer)
-*Index 5 (`0040400A`): Bytes are `F1h 06h` → 0x06F1 = `1777`
-*Index 6 (`0040400C`): Bytes are `0Dh 00h` → 0x000D = `13`
-*Index 7 (`0040400E`): Bytes are `45h 00h` → 0x0045 = `69`
+* Index 0 (`00404000`): Defined as `dw 7` → `7`
+* Index 1 (`00404002`): Bytes are `21h 00h` → 0x0021 = `33`
+* Index 2 (`00404004`): Bytes are `01h 00h` → 0x0001 = `1`
+* Index 3 (`00404006`): Bytes are `A8h FDh` → 0xFDA8 = `-600` (Signed 16-bit integer)
+* Index 4 (`00404008`): Bytes are `78h ECh` → 0xEC78 = `-5000` (Signed 16-bit integer)
+* Index 5 (`0040400A`): Bytes are `F1h 06h` → 0x06F1 = `1777`
+* Index 6 (`0040400C`): Bytes are `0Dh 00h` → 0x000D = `13`
+* Index 7 (`0040400E`): Bytes are `45h 00h` → 0x0045 = `69`
 
 ## 5. Solution Formulation & Verification
 Sorting the table values from the lowest (most negative) to the highest value yields the mandatory ascending progression:
