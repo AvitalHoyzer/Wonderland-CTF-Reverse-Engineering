@@ -98,3 +98,64 @@ Entering this password bypasses the check and unlocks Level 3!
 
 <img width="1162" height="260" alt="צילום מסך 2026-05-21 161610" src="https://github.com/user-attachments/assets/c2167d52-2d52-4adf-867d-cc313f1afd41" />
 
+---
+Level 3 
+---
+
+## 1. Introduction & Initial Analysis
+After bypassing Level 2, the application updates its state and provides the following prompt:
+> *"Welcome to Wonderland. I am the mad hatter, and I have some riddles for you... Input a level number (latest level- 3):"*
+
+Upon entering the stage, the program switches from verifying a standard text string to collecting a sequence of numeric values.
+
+---
+
+## 2. Input Loop & Boundary Validation
+The program first initiates a counter loop at `loc_401469` to capture the user's choices. 
+
+```assembly
+cmp     [ebp+var_4], 8
+jge     short loc_4014AE
+```
+### Analyzing the Input Restrictions:
+* **Loop Boundaries:** The counter `var_4` starts at 0 and is checked against 8, meaning the loop runs exactly 8 times to collect a sequence of 8 numbers.
+
+* **Data Format:** The input function (`sub_401EB0`, acting like `scanf`) uses the format specifier `"%hu"`, indicating that the numbers are processed as unsigned short variables (2 bytes / 16 bits each).
+
+* **Value Constraint:** Inside the loop, each entered number is extracted and validated using the following check:
+```
+movzx   edx, word ptr [ebp+ecx*2+var_18]
+cmp     edx, 8
+jb      short loc_4014AC
+```
+The `jb` (Jump if Below) instruction ensures that every single input number must be strictly less than 8 (meaning only digits from 0 to 7 are allowed). Any number outside this range redirects the code to an error block.
+
+## 3. Core Logic Analysis (`sub_4014F0`)
+Once 8 valid numbers between 0 and 7 are collected, the array pointer (stored at `var_18`) is pushed as an argument to the core validation function: `sub_4014F0`.
+
+Looking inside `sub_4014F0`, the function loops through the user's array and uses each input number as an index to fetch values from a hardcoded lookup table located at global address `word_404000`:
+
+```
+movzx   edx, word ptr [ecx+eax*2]
+mov     ax, word_404000[edx*2]
+...
+movsx   ecx, [ebp+var_4]
+movsx   edx, [ebp+var_8]
+cmp     ecx, edx
+jg      short loc_40154F
+```
+### The Validation Rule:
+The instruction `cmp ecx, edx` followed by `jg` (Jump if Greater) compares the table value of the current index against the table value of the previous index.
+
+*If the newly fetched value is strictly greater than the previous one, the loop updates its baseline tracker (`var_8`) and moves to the next number.
+
+*If any value is smaller than or equal to the previous one, the function immediately fails, clearing `eax` to 0 and rejecting the input.
+
+**Conclusion**: The validation routine requires the numbers to be entered in an order that extracts values from the global lookup table in a strictly ascending order (from lowest to highest).
+
+## 4. Lookup Table Extraction & Endianness Parsing
+To solve the challenge, the exact data stored inside the global table `word_404000` was extracted from the binary's data segment. Since the table stores 2-byte words on an x86 Little-Endian architecture, the bytes were parsed in pairs from their respective memory offsets:
+
+Index 0 (00404000): Defined as dw 7 $\rightarrow$ 7Index 1 (00404002): Bytes are 21h 00h $\rightarrow$ 0x0021 = 33Index 2 (00404004): Bytes are 01h 00h $\rightarrow$ 0x0001 = 1Index 3 (00404006): Bytes are A8h FDh $\rightarrow$ 0xFDA8 = -600 (Signed 16-bit integer)Index 4 (00404008): Bytes are 78h ECh $\rightarrow$ 0xEC78 = -5000 (Signed 16-bit integer)Index 5 (0040400A): Bytes are F1h 06h $\rightarrow$ 0x06F1 = 1777Index 6 (0040400C): Bytes are 0Dh 00h $\rightarrow$ 0x000D = 13Index 7 (0040400E): Bytes are 45h 00h $\rightarrow$ 0x0045 = 69
+
+
