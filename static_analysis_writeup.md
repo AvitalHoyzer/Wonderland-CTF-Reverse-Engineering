@@ -2,14 +2,14 @@
 Level 2 
 ---
 ## 1. Introduction & Initial Analysis
-Upon passing the initial level, the execution flow triggers the following terminal challenge:
+After passing the first level, the program prints the following message on the screen:
 > *"You know what? That was too easy. \*Now\* tell me the second password."*
 
-The binary halts to await user input, which is subsequently stored inside a local stack buffer designated as `Buffer`.
+The application stops and waits for user input, which is saved inside a local memory buffer called `Buffer`.
 
 ---
 ## 2. Assembly Code Analysis & Reverse Engineering
-Within the core processing block (`loc_401380`), the following assembly sequence is responsible for mutating the input string:
+Inside the main processing block (`loc_401380`), the following assembly sequence handles changing the input string:
 
 ```assembly
 mov     eax, [ebp+var_4]
@@ -19,16 +19,17 @@ mov     edx, [ebp+var_4]
 mov     dword ptr [ebp+edx+Buffer], ecx
 jmp     short loc_4013A5
 ```
-### Deconstruction of the Routine:
-* **Index Tracking:**  The local variable var_4 acts as the loop index offset (initialized to 0) and is loaded into the eax register.
+### Step-by-Step Breakdown:
 
-* **DWORD-Sized Chunk Processing:** The instruction mov ecx, dword ptr [ebp+eax+Buffer] reads 4 bytes simultaneously (a double-word / DWORD) from the input buffer into ecx. This marks a structural escalation from Level 1, which processed input on a single-byte scale.
+* **Index Management:**  The local variable `var_4` acts as the loop index counter (starting at 0) and is loaded into the `eax` register.
 
-* **The XOR Cipher:** The instruction xor ecx, 41524241h executes a bitwise Exclusive-OR operation between the extracted 4-byte chunk and the hardcoded hexadecimal constant 0x41524241.
+* **Reading Data in Chunks (DWORD):** The instruction `mov ecx, dword ptr [ebp+eax+Buffer]` reads 4 bytes at the same time (a DWORD) from the input buffer into `ecx`. This is different from Level 1, where the code processed only one byte at a time.
 
-* **Memory Write-Back:** The mutated 4-byte block in ecx is written back into its original offset within Buffer, overriding the raw input dword-for-dword.
+* **The XOR Operation:** The instruction `xor ecx, 41524241h` performs a bitwise XOR between the 4 bytes of the input and the hardcoded hexadecimal constant `0x41524241`.
 
-### Analyzing the Loop Stride (loc_4013A5):
+* **Writing Back to Memory:** The code takes the modified result from `ecx` and writes it back to the exact same position in `Buffer`, overwriting the original input.
+
+### Analyzing the Loop Jump (`loc_4013A5`):
 Immediately following the mutation, control branches to the loop modifier block:
 ```
 loc_4013A5:
@@ -37,44 +38,36 @@ add     ecx, 4
 mov     [ebp+var_4], ecx
 ```
 
-The explicit instruction add ecx, 4 confirms that the loop index increments by 4 bytes per iteration. This structural alignment completely synchronizes with the 4-byte DWORD mutations examined in the prior block.
+The instruction `add ecx, 4` shows that the loop index steps up by 4 bytes every turn. This matches perfectly with the fact that the previous block processes 4 bytes (a DWORD) at a time.
 
-## 3. Cryptographic Key Extraction & Endianness Context
-To build a functional decryption routine, the hex constant 0x41524241 must be mapped to its raw ASCII representation. Because the x86 architecture natively handles data layout using Little-Endian formatting, bytes are evaluated from the least significant byte (LSB) to the most significant byte (MSB):
+## 3. Extracting the Key & Byte Order (Little Endian)
+To write a script that recovers the password, the hex constant `0x41524241` needs to be mapped to its actual characters (ASCII). Because the x86 architecture saves data in memory using **Little-Endian** format, the bytes are read in reverse order (from end to start):
 
-**Byte 1** (Lowest Address): 41h 
-→
- Maps to character 'A' in ASCII.
+**Byte 1** (Lowest Address): `41h`→ The character 'A' in ASCII.
 
-**Byte 2**: 42h 
-→
- Maps to character 'B' in ASCII.
+**Byte 2**: `42h`→ The character 'B' in ASCII.
 
-**Byte 3**: 52h 
-→
- Maps to character 'R' in ASCII.
+**Byte 3**: `52h`→ The character 'R' in ASCII.
 
-**Byte 4** (Highest Address): 41h 
-→
- Maps to character 'A' in ASCII.
+**Byte 4** (Highest Address): `41h` → The character 'A' in ASCII.
 
-Consequently, the operational encryption key applied cyclically across every 4-byte segment of the input sequence translates to the static string: "ABRA".
+This means the encryption key applied to every 4-byte segment of the input is the string: `"ABRA"`.
 
-## 4. Validation Routine & Target Ciphertext
-After terminating the parsing loop, the routine utilizes strncmp to validate the processed Buffer against a hardcoded target anchor string embedded within the binary:
+## 4. The Validation Check & Target Ciphertext
+After the loop finishes, the program uses the `strncmp` function to compare the encrypted `Buffer` against a hardcoded string embedded in the code:
 
 ```
 "into the rabbit hole"
 ```
 
-If the comparison returns 0 (indicating an identical match), the program routes directly to a success block, printing: "Correct! you may enter..".
+If the comparison returns 0 (indicating an identical match), the program routes directly to a success block, printing: `"Correct! you may enter.."`.
 
 ## 5. Automated Solution Script (Python)
 Since the bitwise XOR cipher is its own mathematical inverse (
 A⊕B=C⟹C⊕B=A
-), running the target ciphertext "into the rabbit hole" through the exact same chunk-based XOR routine using the key "ABRA" inverts the ciphertext back into the required cleartext password.
+), running the target ciphertext `"into the rabbit hole"` through the exact same chunk-based XOR routine using the key `"ABRA"` turns the ciphertext back into the required password.
 
-The following Python script automates this reverse transformation:
+The following simple Python script automates this process:
 ```
 def doXor():
     str = "into the rabbit hole"
@@ -94,15 +87,14 @@ def doXor():
 if __name__ == "__main__":
     print(doXor())
 ```
-### Execution Output & Verified Password:
-Running the automated script produces the following required input string:
-
+### Script Output & Found Password:
+Running the script generates the following input string:
 ```
 (, &.a6:$a03##+&a)->$
 ```
 <img width="864" height="376" alt="צילום מסך 2026-05-21 161626" src="https://github.com/user-attachments/assets/32f9f570-02a4-4ba7-be30-116fefb0bd3d" />
 
-Submitting this passphrase successfully bypasses the second verification check!
+Boom! Entering this exact password bypasses the check and lets us enter Level 3!
 
 <img width="1162" height="260" alt="צילום מסך 2026-05-21 161610" src="https://github.com/user-attachments/assets/c2167d52-2d52-4adf-867d-cc313f1afd41" />
 
