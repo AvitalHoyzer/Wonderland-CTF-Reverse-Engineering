@@ -18,16 +18,16 @@ mov     edx, [ebp+var_4]
 mov     dword ptr [ebp+edx+Buffer], ecx
 jmp     short loc_4013A5
 ```
-## Deconstruction of the Routine:
-Index Tracking: The local variable var_4 acts as the loop index offset (initialized to 0) and is loaded into the eax register.
+### Deconstruction of the Routine:
+* **Index Tracking:**  The local variable var_4 acts as the loop index offset (initialized to 0) and is loaded into the eax register.
 
-DWORD-Sized Chunk Processing: The instruction mov ecx, dword ptr [ebp+eax+Buffer] reads 4 bytes simultaneously (a double-word / DWORD) from the input buffer into ecx. This marks a structural escalation from Level 1, which processed input on a single-byte scale.
+* **DWORD-Sized Chunk Processing:** The instruction mov ecx, dword ptr [ebp+eax+Buffer] reads 4 bytes simultaneously (a double-word / DWORD) from the input buffer into ecx. This marks a structural escalation from Level 1, which processed input on a single-byte scale.
 
-The XOR Cipher: The instruction xor ecx, 41524241h executes a bitwise Exclusive-OR operation between the extracted 4-byte chunk and the hardcoded hexadecimal constant 0x41524241.
+* **The XOR Cipher:** The instruction xor ecx, 41524241h executes a bitwise Exclusive-OR operation between the extracted 4-byte chunk and the hardcoded hexadecimal constant 0x41524241.
 
-Memory Write-Back: The mutated 4-byte block in ecx is written back into its original offset within Buffer, overriding the raw input dword-for-dword.
+* **Memory Write-Back:** The mutated 4-byte block in ecx is written back into its original offset within Buffer, overriding the raw input dword-for-dword.
 
-Analyzing the Loop Stride (loc_4013A5):
+### Analyzing the Loop Stride (loc_4013A5):
 Immediately following the mutation, control branches to the loop modifier block:
 ```
 loc_4013A5:
@@ -38,35 +38,37 @@ mov     [ebp+var_4], ecx
 
 The explicit instruction add ecx, 4 confirms that the loop index increments by 4 bytes per iteration. This structural alignment completely synchronizes with the 4-byte DWORD mutations examined in the prior block.
 
-3. Cryptographic Key Extraction & Endianness Context
+## 3. Cryptographic Key Extraction & Endianness Context
 To build a functional decryption routine, the hex constant 0x41524241 must be mapped to its raw ASCII representation. Because the x86 architecture natively handles data layout using Little-Endian formatting, bytes are evaluated from the least significant byte (LSB) to the most significant byte (MSB):
 
-Byte 1 (Lowest Address): 41h 
+**Byte 1** (Lowest Address): 41h 
 →
  Maps to character 'A' in ASCII.
 
-Byte 2: 42h 
+**Byte 2**: 42h 
 →
  Maps to character 'B' in ASCII.
 
-Byte 3: 52h 
+**Byte 3**: 52h 
 →
  Maps to character 'R' in ASCII.
 
-Byte 4 (Highest Address): 41h 
+**Byte 4** (Highest Address): 41h 
 →
  Maps to character 'A' in ASCII.
 
 Consequently, the operational encryption key applied cyclically across every 4-byte segment of the input sequence translates to the static string: "ABRA".
 
-4. Validation Routine & Target Ciphertext
+## 4. Validation Routine & Target Ciphertext
 After terminating the parsing loop, the routine utilizes strncmp to validate the processed Buffer against a hardcoded target anchor string embedded within the binary:
 
-Plaintext
+```
 "into the rabbit hole"
+```
+
 If the comparison returns 0 (indicating an identical match), the program routes directly to a success block, printing: "Correct! you may enter..".
 
-5. Automated Solution Script (Python)
+## 5. Automated Solution Script (Python)
 Since the bitwise XOR cipher is its own mathematical inverse (
 A⊕B=C⟹C⊕B=A
 ), running the target ciphertext "into the rabbit hole" through the exact same chunk-based XOR routine using the key "ABRA" inverts the ciphertext back into the required cleartext password.
@@ -92,11 +94,13 @@ def doXor():
 if __name__ == "__main__":
     print(doXor())
 ```
-Execution Output & Verified Password:
+### Execution Output & Verified Password:
 Running the automated script produces the following required input string:
 
-Plaintext
+```
 (, &.a6:$a03##+&a)->$
+```
+
 Submitting this passphrase successfully bypasses the second verification check and unlocks the subsequent stage:
 
 "Welcome to Wonderland. I am the mad hatter, and I have some riddles for you..."
