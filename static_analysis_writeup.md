@@ -94,7 +94,7 @@ Running the script generates the following input string:
 ```
 <img width="864" height="376" alt="צילום מסך 2026-05-21 161626" src="https://github.com/user-attachments/assets/32f9f570-02a4-4ba7-be30-116fefb0bd3d" />
 
-Entering this password bypasses the check and lets us enter Level 3!
+Entering this password bypasses the check and unlocks Level 3!
 
 <img width="1162" height="260" alt="צילום מסך 2026-05-21 161610" src="https://github.com/user-attachments/assets/c2167d52-2d52-4adf-867d-cc313f1afd41" />
 
