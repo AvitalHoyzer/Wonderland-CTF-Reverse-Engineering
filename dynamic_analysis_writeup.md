@@ -64,6 +64,7 @@ By giving the program this address, strncmp reads `"Good luck!!"` from a safe, p
 We convert our hex target address 40473E into a regular decimal number that we can type into the program prompt: `4212542`
 
 Now, we just run the program normally (without any debugger) and type the number 4212542
+
 The program accepts it, passes both checks, and unlocks Level 5!
 
 <img width="1141" height="371" alt="image" src="https://github.com/user-attachments/assets/e3423f0a-9d3f-4583-8e66-cda8bf6b02af" />
