@@ -12,6 +12,8 @@ The program stops and waits for a single user input and reads this input using t
 
 ## 2. Assembly Code Analysis & The Memory Vulnerability
 Inside the level processing block (`loc_4015B5`), the following assembly sequence handles the core logic before calling the string validation routine:
+
+
 <img width="353" height="483" alt="image" src="https://github.com/user-attachments/assets/92c53264-13eb-445c-9c5f-a65c3c8256ce" />
 
 ### Step-by-Step Breakdown:
@@ -60,6 +62,7 @@ By giving the program this address, strncmp reads `"Good luck!!"` from a safe, p
 
 ## 5. Finding the Final Number & Testing
 We convert our hex target address 40473E into a regular decimal number that we can type into the program prompt: `4212542`
+
 Now, we just run the program normally (without any debugger) and type the number 4212542
 The program accepts it, passes both checks, and unlocks Level 5!
 
