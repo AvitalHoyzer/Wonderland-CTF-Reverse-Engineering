@@ -96,19 +96,19 @@ This function acts exactly like a **Maze Game**. It reads the text file characte
 * **Input `'3'`:** Moves the player **Left** (Subtracts 1 from the position).
 * **Input `'4'`:** Moves the player **Up** (Subtracts 16 from the position).
 
-### Why does 16 represent Up and Down?
+#### Why does 16 represent Up and Down?
 The row width is exactly **16 bytes** (`10h` in hex). 
 * To move **Down** to the exact same column in the next row, the program must skip a whole row ahead in memory, which requires adding `16` to the current index (`add position, 10h`).
 * To move **Up**, the program must go back exactly one full row in memory, which requires subtracting `16` from the current index (`sub position, 10h`).
 
-* **The Starting Point:** Before reading our file, the program uses `strchr` to scan the map for the character **`O`**. It automatically places the player on this letter as the starting position (index 0).
-* 
-### The Boundary Rules:
+**The Starting Point:** Before reading our file, the program uses `strchr` to scan the map for the character **`O`**. It automatically places the player on this letter as the starting position (index 0).
+
+**The Boundary Rules:**
 Every time a movement character is processed, the program validates the new position against the map:
 * If the player steps on a period character (`.`), the path is clean, and the loop keeps running.
 * If the player steps on a hashtag character (`#`), a wall is hit. The program stops immediately and prints `"You are lost!"`.
 
-* **The Win Condition:** After processing all the characters from the file, the program checks the final position. If the player is standing exactly on the character **`X`**, the level is cleared successfully.
+**The Win Condition:** After processing all the characters from the file, the program checks the final position. If the player is standing exactly on the character **`X`**, the level is cleared successfully.
   
 ---
 
