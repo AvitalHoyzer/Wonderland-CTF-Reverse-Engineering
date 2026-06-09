@@ -113,7 +113,7 @@ Every time a movement character is processed, the program validates the new posi
 ---
 
 ## 3. Finding the Maze Map in Memory
-To solve the maze, the actual layout had to be analyzed. The hardcoded map characters are stored inside the static data section (`.data`) at address `00404020`.
+To solve the maze, the actual layout had to be analyzed. The hardcoded map characters are stored inside the static data section (`.data`) at address `00404020`:
 
 Inside the maze function, the code constantly checks the player's position against the map. By looking at the pointer named `Str` used during this validation step, I saw that it points directly to the global variable `aO` at address `00404020`. This confirmed exactly where the maze map is stored.
 
