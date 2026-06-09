@@ -143,7 +143,8 @@ Combining all these direction commands together produces the final exact sequenc
 ## 5. Testing & Success
 The final path sequence `2221114411411222111` was written into the path.txt file and saved.
 
-Running the program normally, choosing Level 5, and passing the path.txt file satisfied all conditions. The program completed the loop, verified that the final position matched the exit marker X, and successfully unlocked Level 6!
+Running the program normally, choosing Level 5, and passing the path.txt file satisfied all conditions. 
+The program completed the loop, verified that the final position matched the exit marker X, and successfully unlocked Level 6!
 
 <img width="1123" height="316" alt="image" src="https://github.com/user-attachments/assets/7378f9d8-b1a2-479a-a0e9-2cac85396f49" />
 
